@@ -2,6 +2,8 @@
 
 namespace App;
 
+use RuntimeException;
+
 class LuckyTicket
 {
     private $first;
@@ -15,10 +17,10 @@ class LuckyTicket
         $this->end = $end ?? 999999;
     }
 
-    private function validate()
+    private function validate(): void
     {
         if ($this->first > $this->end) {
-            throw new \RuntimeException('First must been less then end');
+            throw new RuntimeException('First must been less then end');
         }
     }
 
@@ -30,8 +32,8 @@ class LuckyTicket
         $i = $this->first;
         $count = 0;
         while ($this->end >= $i) {
-            $left = $this->sum((int)($i / 1000));
-            $right = $this->sum($i % 1000);
+            $left = $this->sumWithModNine((int)($i / 1000));
+            $right = $this->sumWithModNine($i % 1000);
             if ($left === $right) {
                 $count++;
             }
@@ -48,9 +50,19 @@ class LuckyTicket
         }
         $sum = array_sum(str_split((string)$num));
         if ($sum >= 10) {
-            $sum = array_sum(str_split((string)$sum));
+            $sum = $this->sum($sum);
         }
         self::$cache[$num] = $sum;
+
+        return $sum;
+    }
+
+    public function sumWithModNine($num): int
+    {
+        $sum = $num % 9;
+        if ($sum === 0 && $num >= 9) {
+            $sum = 9;
+        }
 
         return $sum;
     }
